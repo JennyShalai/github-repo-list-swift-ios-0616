@@ -10,14 +10,34 @@ import UIKit
 
 class ReposTableViewController: UITableViewController {
     
+    let dataStore = ReposDataStore.sharedInstance
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         self.tableView.accessibilityLabel = "tableView"
         
+        self.dataStore.getRepositoriesWithCompletion ({
+            
+            // work with block on main Q
+            dispatch_async(dispatch_get_main_queue()) {
+                
+                self.tableView.reloadData()
+            }
+        })
+        
     }
 
     // MARK: - Table view data source
  
-
+    override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return dataStore.repositories.count
+    }
+    
+    override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCellWithIdentifier("repoCell", forIndexPath: indexPath)
+        cell.textLabel?.text = self.dataStore.repositories[indexPath.row].fullName
+        return cell
+    }
 }
